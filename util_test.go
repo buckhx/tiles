@@ -38,6 +38,8 @@ func TestMapDimensions(t *testing.T) {
 	}
 }
 
+/*
+//TODO assert neither of these are used and remove
 func TestGroundRes(t *testing.T) {
 	lat := 40.0
 	var zoom uint = 7
@@ -56,3 +58,4 @@ func TestMapScale(t *testing.T) {
 		t.Errorf("mapScale(%v, %v, %v) -> %v not %v", lat, zoom, dpi, scale, out)
 	}
 }
+*/

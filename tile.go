@@ -59,13 +59,13 @@ func (t Tile) QuadKey() string {
 			quad += 2
 		}
 		digit := strconv.Itoa(quad)
-		_, err := qk.WriteString(digit)
-		panic(err)
+		_, _ = qk.WriteString(digit)
 	}
 	return qk.String()
 }
 
 // TileFromQuadKey returns a tile that represents the given quadkey
+// Panics on invalid keys
 func TileFromQuadKey(quadkey string) (tile Tile) {
 	tile.Z = uint(len(quadkey))
 	for i := tile.Z; i > 0; i-- {

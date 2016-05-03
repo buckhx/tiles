@@ -17,7 +17,8 @@ func TestTileIndex(t *testing.T) {
 	}
 	idx := &TileIndex{}
 	for i, qk := range qks {
-		idx.Add(TileFromQuadKey(qk), i)
+		tile := TileFromQuadKey(qk)
+		idx.Add(tile, i)
 	}
 	for tile := range idx.TileRange(1, 2) {
 		t.Logf("Tile %+v", tile.QuadKey())
