@@ -1,6 +1,7 @@
 package tiles
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -51,4 +52,11 @@ func TestTileFromQuadkey(t *testing.T) {
 			t.Errorf(errf, test.quadkey, test.tile, tile)
 		}
 	}
+}
+
+func ExampleCoordinateToTile() {
+	esbLat := 40.7484
+	esbLon := -73.9857
+	tile, _ := CoordinateToTile(esbLat, esbLon, 18)
+	fmt.Println(tile)
 }

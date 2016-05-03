@@ -51,13 +51,11 @@ func (idx *TileIndex) Values(t Tile) (vals []interface{}) {
 	defer idx.RUnlock()
 	qk := t.QuadKey()
 	i := idx.search(qk)
-	if i >= len(idx.keys) {
-		return //404
-	}
-	n := idx.keys[i]
-	for i < len(idx.keys) && strings.HasPrefix(n.qk, qk) {
-		n = idx.keys[i]
-		vals = append(vals, idx.values[n.v])
+	for i < len(idx.keys) {
+		n := idx.keys[i]
+		if strings.HasPrefix(n.qk, qk) {
+			vals = append(vals, idx.values[n.v])
+		}
 		i++
 	}
 	return
