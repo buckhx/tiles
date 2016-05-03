@@ -1,0 +1,8 @@
+language: go
+go:
+  - tip
+install:
+  - printenv
+  - go env
+script:
+  - go test ./...
