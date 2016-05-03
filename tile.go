@@ -1,5 +1,6 @@
-// package tile_system is a collection of conversion utilities to go between geo/pixel/tile/quadkey space
+// Package tiles is a collection of conversion utilities to go between geo/pixel/tile/quadkey space
 // This package uses WGS84 coordinates and a mercator projection
+// There is also a TileIndex which can be used to store data in a single place and aggregate when needed
 package tiles
 
 import (
@@ -7,22 +8,27 @@ import (
 	"strconv"
 )
 
+// Tile is a simple struct for holding the XYZ coordinates for use in mapping
 type Tile struct {
 	X, Y, Z uint
 }
 
+// IntX is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
 func (t Tile) IntX() int {
 	return int(t.X)
 }
 
+// IntY is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
 func (t Tile) IntY() int {
 	return int(t.Y)
 }
 
+// IntZ is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
 func (t Tile) IntZ() int {
 	return int(t.Z)
 }
 
+// ToPixel return the NW pixel of this tile
 func (t Tile) ToPixel() Pixel {
 	return Pixel{
 		X: t.X * TileSize,
@@ -31,6 +37,7 @@ func (t Tile) ToPixel() Pixel {
 	}
 }
 
+// ToPixelWithOffset returns a pixel at the origin with an offset added. Useful for getting the center pixel of a tile or another non-origin pixel.
 func (t Tile) ToPixelWithOffset(offset Pixel) (pixel Pixel) {
 	pixel = t.ToPixel()
 	pixel.X += offset.X
@@ -38,6 +45,8 @@ func (t Tile) ToPixelWithOffset(offset Pixel) (pixel Pixel) {
 	return
 }
 
+// QuadKey returns the string representation of a Bing Maps quadkey. See more https://msdn.microsoft.com/en-us/library/bb259689.aspx
+// Panics if it can't write to the internal buffer
 func (t Tile) QuadKey() string {
 	var qk bytes.Buffer
 	for i := t.Z; i > 0; i-- {
@@ -50,11 +59,13 @@ func (t Tile) QuadKey() string {
 			quad += 2
 		}
 		digit := strconv.Itoa(quad)
-		qk.WriteString(digit)
+		_, err := qk.WriteString(digit)
+		panic(err)
 	}
 	return qk.String()
 }
 
+// TileFromQuadKey returns a tile that represents the given quadkey
 func TileFromQuadKey(quadkey string) (tile Tile) {
 	tile.Z = uint(len(quadkey))
 	for i := tile.Z; i > 0; i-- {

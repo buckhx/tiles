@@ -5,18 +5,19 @@ import (
 	"math"
 )
 
-// WGS-84 Lat Lon coordindates in degrees
+// Coords is a simple struct for hold WGS-84 Lat Lon coordinates in degrees
 type Coords struct {
 	Lat, Lon float64
 }
 
+// Equals checks if these coords are equal avoiding some float precision
 func (c Coords) Equals(that Coords) bool {
 	eq := floatEquals(c.Lat, that.Lat)
 	eq = eq && floatEquals(c.Lon, that.Lon)
 	return eq
 }
 
-// Get the Pixel of the pixel at the zoom level
+// ToPixel gets the Pixel of the coord at the zoom level
 func (c Coords) ToPixel(zoom uint) Pixel {
 	x := (c.Lon + 180) / 360.0
 	sinLat := math.Sin(c.Lat * math.Pi / 180.0)
@@ -34,7 +35,7 @@ func (c Coords) String() string {
 	return fmt.Sprintf("(%v, %v)", c.Lat, c.Lon)
 }
 
-// Coords that have been clipped to Max/Min Lat/Lon
+// ClippedCoords that have been clipped to Max/Min Lat/Lon
 func ClippedCoords(lat, lon float64) Coords {
 	return Coords{
 		Lat: clip(lat, MinLat, MaxLat),

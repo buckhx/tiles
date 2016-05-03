@@ -9,31 +9,32 @@ type Pixel struct {
 	X, Y, Z uint
 }
 
-func (p Pixel) FloatX() float64 {
+func (p Pixel) floatX() float64 {
 	return float64(p.X)
 }
 
-func (p Pixel) FloatY() float64 {
+func (p Pixel) floatY() float64 {
 	return float64(p.Y)
 }
 
+// ToCoords converts to WGS84 coordaintes
 func (p Pixel) ToCoords() Coords {
 	size := float64(mapDimensions(p.Z))
-	x := (clip(p.FloatX(), 0, size-1) / size) - 0.5
-	y := 0.5 - (clip(p.FloatY(), 0, size-1) / size)
+	x := (clip(p.floatX(), 0, size-1) / size) - 0.5
+	y := 0.5 - (clip(p.floatY(), 0, size-1) / size)
 	lat := 90 - 360*math.Atan(math.Exp(-y*2*math.Pi))/math.Pi
 	lon := 360.0 * x
 	return ClippedCoords(lat, lon)
 }
 
-// Gets the tile that contains this pixel as well as the pixel within that tile.
-func (p Pixel) ToTile() (tile Tile, tilePixel TilePixel) {
+// ToTile gets the tile that contains this pixel as well as the offset pixel within that tile.
+func (p Pixel) ToTile() (tile Tile, offset TilePixel) {
 	tile = Tile{
 		X: p.X / TileSize,
 		Y: p.Y / TileSize,
 		Z: p.Z,
 	}
-	tilePixel = TilePixel{
+	offset = TilePixel{
 		X:    p.X % TileSize,
 		Y:    p.Y % TileSize,
 		Tile: &tile,
@@ -41,13 +42,13 @@ func (p Pixel) ToTile() (tile Tile, tilePixel TilePixel) {
 	return
 }
 
-// Pixel whose origin (0,0) is NW corner of Tile
+// TilePixel is a pixel whose origin (0,0) is NW corner of Tile referenced in to tile field
 type TilePixel struct {
 	X, Y uint
 	Tile *Tile
 }
 
-func (p TilePixel) ToCoords() Coords {
+func (p TilePixel) toCoords() Coords {
 	panic("TilePixel.ToCoords() Not Implemented")
-	return Coords{}
+	//return Coords{}
 }
