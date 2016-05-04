@@ -1,5 +1,5 @@
 #tiles [![](https://godoc.org/github.com/buckhx/tiles?status.svg)](https://godoc.org/github.com/buckhx/tiles) [![Build Status](https://travis-ci.org/buckhx/tiles.svg?branch=master)](https://travis-ci.org/buckhx/tiles)
-A map tiling library for Go. Converts between WGS84 coordinates to Slippy Map Tiles and Quadkeys. Includes a TileIndex that can be used to aggregate data into parent tiles.
+A map tiling library written in pure Go with no external dependencies outside of the golang stdlib. Converts between WGS84 coordinates to Slippy Map Tiles and Quadkeys. Includes a TileIndex that can be used to aggregate data into parent tiles.
 
     go get github.com/buckhx/tiles
 
