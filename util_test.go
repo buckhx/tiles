@@ -23,7 +23,7 @@ func TestClip(t *testing.T) {
 
 func TestMapDimensions(t *testing.T) {
 	mapDimTests := []struct {
-		zoom, out uint
+		zoom, out int
 	}{
 		{0, 256},
 		{1, 512},
@@ -42,7 +42,7 @@ func TestMapDimensions(t *testing.T) {
 //TODO assert neither of these are used and remove
 func TestGroundRes(t *testing.T) {
 	lat := 40.0
-	var zoom uint = 7
+	var zoom int = 7
 	res := 936.86657226219847
 	if out := grndRes(lat, zoom); !floatEquals(out, res) {
 		t.Errorf("grndRes(%v, %v) -> %v not %v", lat, zoom, res, out)
@@ -51,8 +51,8 @@ func TestGroundRes(t *testing.T) {
 
 func TestMapScale(t *testing.T) {
 	lat := 40.0
-	var zoom uint = 7
-	var dpi uint = 96
+	var zoom int = 7
+	var dpi int = 96
 	scale := 3540913.0290224836
 	if out := mapScale(lat, zoom, dpi); !floatEquals(out, scale) {
 		t.Errorf("mapScale(%v, %v, %v) -> %v not %v", lat, zoom, dpi, scale, out)

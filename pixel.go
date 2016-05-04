@@ -6,7 +6,7 @@ import (
 
 // Pixel in a WGS84 Mercator map projection with a NW origin (0,0) of the projection
 type Pixel struct {
-	X, Y, Z uint
+	X, Y, Z int
 }
 
 func (p Pixel) floatX() float64 {
@@ -44,7 +44,7 @@ func (p Pixel) ToTile() (tile Tile, offset TilePixel) {
 
 // TilePixel is a pixel whose origin (0,0) is NW corner of Tile referenced in to tile field
 type TilePixel struct {
-	X, Y uint
+	X, Y int
 	Tile *Tile
 }
 

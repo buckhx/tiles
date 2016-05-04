@@ -15,7 +15,7 @@ const (
 )
 
 // TileSize is the size in pixels of each tile. It can be tuned at the package level.
-var TileSize uint = 256
+var TileSize = 256
 
 // if val is outside of min-max range, clip it to min or max
 // panic if min > max
@@ -28,15 +28,15 @@ func clip(val, min, max float64) float64 {
 
 // Gets the size of the x, y dimensions in pixels at the given zoom level
 // x == y since the map is a square
-func mapDimensions(zoom uint) uint {
+func mapDimensions(zoom int) int {
 	//TODO panic outside of zoom bounds
-	return TileSize << zoom
+	return TileSize << uint(zoom)
 }
 
 // Gets the ground resoultion (meters/pixel) of the map at the lat and zoom
 // TODO remove if unused
 /*
-func grndRes(lat float64, zoom uint) float64 {
+func grndRes(lat float64, zoom int) float64 {
 	lat = clip(lat, MinLat, MaxLat)
 	dim := float64(mapDimensions(zoom))
 	return math.Cos(lat*math.Pi/180) * 2 * math.Pi * EarthRadiusM / dim
@@ -46,7 +46,7 @@ func grndRes(lat float64, zoom uint) float64 {
 // Gets the map scale at the lat, zoom & screen DPI expressed as the denominator N of the ratio 1 : N.
 // TODO remove if unused
 /*
-func mapScale(lat float64, zoom, dpi uint) float64 {
+func mapScale(lat float64, zoom, dpi int) float64 {
 	d := float64(dpi)
 	return grndRes(lat, zoom) * d / 0.0254
 }

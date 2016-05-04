@@ -10,22 +10,7 @@ import (
 
 // Tile is a simple struct for holding the XYZ coordinates for use in mapping
 type Tile struct {
-	X, Y, Z uint
-}
-
-// IntX is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
-func (t Tile) IntX() int {
-	return int(t.X)
-}
-
-// IntY is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
-func (t Tile) IntY() int {
-	return int(t.Y)
-}
-
-// IntZ is a helper that casts the given field to an int. Should be removed when the field is changed to an int.
-func (t Tile) IntZ() int {
-	return int(t.Z)
+	X, Y, Z int
 }
 
 // ToPixel return the NW pixel of this tile
@@ -51,11 +36,11 @@ func (t Tile) QuadKey() string {
 	var qk bytes.Buffer
 	for i := t.Z; i > 0; i-- {
 		quad := 0
-		mask := 1 << (i - 1)
-		if (t.IntX() & mask) != 0 {
+		mask := 1 << uint(i-1)
+		if (t.X & mask) != 0 {
 			quad++
 		}
-		if (t.IntY() & mask) != 0 {
+		if (t.Y & mask) != 0 {
 			quad += 2
 		}
 		digit := strconv.Itoa(quad)
@@ -67,13 +52,13 @@ func (t Tile) QuadKey() string {
 // TileFromQuadKey returns a tile that represents the given quadkey
 // Panics on invalid keys
 func TileFromQuadKey(quadkey string) (tile Tile) {
-	tile.Z = uint(len(quadkey))
+	tile.Z = len(quadkey)
 	for i := tile.Z; i > 0; i-- {
-		mask := uint(1 << (i - 1))
-		cur := len(quadkey) - int(i)
+		mask := 1 << uint(i-1)
+		cur := len(quadkey) - i
 		quad, err := strconv.Atoi(string(quadkey[cur]))
 		check(err)
-		switch uint(quad) {
+		switch quad {
 		case 0:
 			break
 		case 1:
