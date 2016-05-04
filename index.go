@@ -27,10 +27,10 @@ func (idx *TileIndex) TileRange(zmin, zmax int) <-chan Tile {
 		idx.RLock()
 		defer idx.RUnlock()
 		for i := 0; i < len(idx.keys)-1; i++ {
-			q := idx.keys[i].qk
-			n := idx.keys[i+1].qk
-			for z := zmin; z <= zmax && z <= len(q); z++ {
-				q = q.Parent(z)
+			qmax := idx.keys[i].qk.Level()
+			for z := zmin; z <= zmax && z <= qmax; z++ {
+				q := idx.keys[i].qk.Parent(z)
+				n := idx.keys[i+1].qk
 				if !n.HasParent(q) {
 					tiles <- q.ToTile()
 				}
@@ -53,7 +53,7 @@ func (idx *TileIndex) Values(t Tile) (vals []interface{}) {
 	i := idx.search(qk)
 	for i < len(idx.keys) {
 		n := idx.keys[i]
-		if n.qk.HasParent(qk) {
+		if n.qk == qk || n.qk.HasParent(qk) {
 			vals = append(vals, idx.values[n.v])
 		}
 		i++

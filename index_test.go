@@ -1,6 +1,5 @@
 package tiles
 
-/*
 import (
 	"fmt"
 	"testing"
@@ -74,4 +73,3 @@ func ExampleTileIndex() {
 	// NYC Tile:  [EmpireStateBuilding StatueOfLiberty]
 	// DENVER Tile:  []
 }
-*/
