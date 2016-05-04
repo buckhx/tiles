@@ -30,9 +30,9 @@ func (t Tile) ToPixelWithOffset(offset Pixel) (pixel Pixel) {
 	return
 }
 
-// QuadKey returns the string representation of a Bing Maps quadkey. See more https://msdn.microsoft.com/en-us/library/bb259689.aspx
+// Quadkey returns the string representation of a Bing Maps quadkey. See more https://msdn.microsoft.com/en-us/library/bb259689.aspx
 // Panics if it can't write to the internal buffer
-func (t Tile) QuadKey() string {
+func (t Tile) Quadkey() Quadkey {
 	var qk bytes.Buffer
 	for i := t.Z; i > 0; i-- {
 		quad := 0
@@ -46,17 +46,16 @@ func (t Tile) QuadKey() string {
 		digit := strconv.Itoa(quad)
 		_, _ = qk.WriteString(digit)
 	}
-	return qk.String()
+	return Quadkey(qk.String())
 }
 
-// FromQuadKey returns a tile that represents the given quadkey
-// Panics on invalid keys
-func FromQuadKey(quadkey string) (tile Tile) {
-	tile.Z = len(quadkey)
+// FromQuadkeyString returns a tile that represents the given quadkey string
+func FromQuadkeyString(qk string) (tile Tile) {
+	tile.Z = len(qk)
 	for i := tile.Z; i > 0; i-- {
 		mask := 1 << uint(i-1)
-		cur := len(quadkey) - i
-		quad, err := strconv.Atoi(string(quadkey[cur]))
+		cur := len(qk) - i
+		quad, err := strconv.Atoi(string(qk[cur]))
 		check(err)
 		switch quad {
 		case 0:
@@ -72,7 +71,7 @@ func FromQuadKey(quadkey string) (tile Tile) {
 			tile.Y |= mask
 			break
 		default:
-			panic("Invalid quadkey " + quadkey)
+			panic("Invalid Quadkey " + qk)
 		}
 	}
 	return

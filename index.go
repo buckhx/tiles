@@ -2,7 +2,6 @@ package tiles
 
 import (
 	"sort"
-	"strings"
 	"sync"
 )
 
@@ -31,14 +30,15 @@ func (idx *TileIndex) TileRange(zmin, zmax int) <-chan Tile {
 			q := idx.keys[i].qk
 			n := idx.keys[i+1].qk
 			for z := zmin; z <= zmax && z <= len(q); z++ {
-				if !strings.HasPrefix(n, q[:z]) {
-					tiles <- FromQuadKey(q[:z])
+				q = q.Parent(z)
+				if !n.HasParent(q) {
+					tiles <- q.ToTile()
 				}
 			}
 		}
 		q := idx.keys[len(idx.keys)-1].qk
 		for z := zmin; z <= zmax && z <= len(q); z++ {
-			tiles <- FromQuadKey(q[:z])
+			tiles <- q.Parent(z).ToTile()
 		}
 	}()
 	return tiles
@@ -49,11 +49,11 @@ func (idx *TileIndex) Values(t Tile) (vals []interface{}) {
 	idx.sort()
 	idx.RLock()
 	defer idx.RUnlock()
-	qk := t.QuadKey()
+	qk := t.Quadkey()
 	i := idx.search(qk)
 	for i < len(idx.keys) {
 		n := idx.keys[i]
-		if strings.HasPrefix(n.qk, qk) {
+		if n.qk.HasParent(qk) {
 			vals = append(vals, idx.values[n.v])
 		}
 		i++
@@ -66,7 +66,7 @@ func (idx *TileIndex) Add(t Tile, val interface{}) {
 	idx.Lock()
 	defer idx.Unlock()
 	idx.values = append(idx.values, val)
-	qk := qkey{qk: t.QuadKey(), v: len(idx.values) - 1}
+	qk := qkey{qk: t.Quadkey(), v: len(idx.values) - 1}
 	idx.keys = append(idx.keys, qk)
 	idx.sorted = false
 }
@@ -81,12 +81,12 @@ func (idx *TileIndex) sort() {
 	}
 }
 
-func (idx *TileIndex) search(qk string) int {
+func (idx *TileIndex) search(qk Quadkey) int {
 	return sort.Search(len(idx.keys), func(i int) bool { return idx.keys[i].qk >= qk })
 }
 
 type qkey struct {
-	qk string
+	qk Quadkey
 	v  int
 }
 

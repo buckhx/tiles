@@ -27,13 +27,13 @@ func TestTileToPixel(t *testing.T) {
 func TestTileToQuadkey(t *testing.T) {
 	tileTests := []struct {
 		tile    tiles.Tile
-		quadkey string
+		quadkey tiles.Quadkey
 	}{
-		{tiles.Tile{X: 26, Y: 48, Z: 7}, "0231010"},
+		{tiles.Tile{X: 26, Y: 48, Z: 7}, tiles.Quadkey("0231010")},
 	}
 	errf := "Tile%+v: %+v -> %+v"
 	for _, test := range tileTests {
-		qk := test.tile.QuadKey()
+		qk := test.tile.Quadkey()
 		if qk != test.quadkey {
 			t.Errorf(errf, test.tile, test.quadkey, qk)
 		}
@@ -42,14 +42,14 @@ func TestTileToQuadkey(t *testing.T) {
 
 func TestTileFromQuadkey(t *testing.T) {
 	tileTests := []struct {
-		quadkey string
+		quadkey tiles.Quadkey
 		tile    tiles.Tile
 	}{
-		{"0231010", Tile{X: 26, Y: 48, Z: 7}},
+		{tiles.Quadkey("0231010"), tiles.Tile{X: 26, Y: 48, Z: 7}},
 	}
 	errf := "QuadKey%+v: %+v -> %+v"
 	for _, test := range tileTests {
-		tile := tiles.FromQuadKey(test.quadkey)
+		tile := test.quadkey.ToTile()
 		if tile != test.tile {
 			t.Errorf(errf, test.quadkey, test.tile, tile)
 		}
