@@ -16,7 +16,7 @@ func TestTileRange(t *testing.T) {
 		"0101",
 		"1111",
 	}
-	idx := &TileIndex{}
+	idx := NewTileIndex()
 	for i, qk := range qks {
 		tile := FromQuadkeyString(qk)
 		idx.Add(tile, i)
@@ -32,7 +32,7 @@ func TestTileRange(t *testing.T) {
 }
 
 func TestTileIndex(t *testing.T) {
-	idx := &TileIndex{}
+	idx := NewTileIndex()
 	esb := FromCoordinate(40.7484, -73.9857, 18)
 	sol := FromCoordinate(40.6892, -74.0445, 18)
 	bbn := FromCoordinate(51.5007, -0.1246, 18)
@@ -55,7 +55,7 @@ func TestTileIndex(t *testing.T) {
 }
 
 func ExampleTileIndex() {
-	idx := &TileIndex{}
+	idx := NewTileIndex()
 	esb := FromCoordinate(40.7484, -73.9857, 18)
 	sol := FromCoordinate(40.6892, -74.0445, 18)
 	bbn := FromCoordinate(51.5007, -0.1246, 18)

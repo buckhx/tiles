@@ -5,11 +5,25 @@ import (
 	"sync"
 )
 
-// TileIndex stores indexes values by tile. If a deep level of tile is added and a shallower
-// one is requested, the values are aggregated up.
-// TileIndex is thread safe
-// implementation uses a sorted keyset, trie would be better
-type TileIndex struct {
+// TileIndex stores indexes values by tile.
+// If a deep level of tile is added and a shallower one is requested, the values are aggregated up.
+type TileIndex interface {
+	TileRange(zmin, zmax int) <-chan Tile
+	Values(t Tile) (vals []interface{})
+	Add(t Tile, val interface{})
+}
+
+// NewTileIndex returns the default TileIndex
+func NewTileIndex() TileIndex {
+	return &KeysetIndex{}
+}
+
+// KeysetIndex is a TileIndex implementation that uses a sorted keyset.
+// A trie would be more efficient, but KeysetIndex mirrors the range queries of boltdb which could be dropped in if the entire index won't fit in memory.
+// KeysetIndex is thread safe
+type KeysetIndex struct {
+	// Implementation uses a sorted keyset.
+	// A trie would be more efficient, but
 	sorted bool
 	keys   []qkey
 	values []interface{}
@@ -19,7 +33,7 @@ type TileIndex struct {
 // TileRange returns a channel of all tiles in the index in the zoom range
 // If zmax is greater than the deepest tile level, the deepest tile level returns
 // Acquires a readlock for duration of returned channel being open
-func (idx *TileIndex) TileRange(zmin, zmax int) <-chan Tile {
+func (idx *KeysetIndex) TileRange(zmin, zmax int) <-chan Tile {
 	idx.sort()
 	tiles := make(chan Tile, 1<<10)
 	go func() {
@@ -45,7 +59,7 @@ func (idx *TileIndex) TileRange(zmin, zmax int) <-chan Tile {
 }
 
 // Values returns a list of values aggregated under the requested tile
-func (idx *TileIndex) Values(t Tile) (vals []interface{}) {
+func (idx *KeysetIndex) Values(t Tile) (vals []interface{}) {
 	idx.sort()
 	idx.RLock()
 	defer idx.RUnlock()
@@ -62,7 +76,7 @@ func (idx *TileIndex) Values(t Tile) (vals []interface{}) {
 }
 
 // Add adds a value, but will not be indexed
-func (idx *TileIndex) Add(t Tile, val interface{}) {
+func (idx *KeysetIndex) Add(t Tile, val interface{}) {
 	idx.Lock()
 	defer idx.Unlock()
 	idx.values = append(idx.values, val)
@@ -72,7 +86,7 @@ func (idx *TileIndex) Add(t Tile, val interface{}) {
 }
 
 // sorts the tiles, nothing happens if the sorted flag is set
-func (idx *TileIndex) sort() {
+func (idx *KeysetIndex) sort() {
 	if !idx.sorted {
 		idx.Lock()
 		sort.Sort(byQk(idx.keys))
@@ -81,7 +95,7 @@ func (idx *TileIndex) sort() {
 	}
 }
 
-func (idx *TileIndex) search(qk Quadkey) int {
+func (idx *KeysetIndex) search(qk Quadkey) int {
 	return sort.Search(len(idx.keys), func(i int) bool { return idx.keys[i].qk >= qk })
 }
 

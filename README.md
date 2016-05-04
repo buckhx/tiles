@@ -1,5 +1,5 @@
 #tiles [![](https://godoc.org/github.com/buckhx/tiles?status.svg)](https://godoc.org/github.com/buckhx/tiles) [![Build Status](https://travis-ci.org/buckhx/tiles.svg?branch=master)](https://travis-ci.org/buckhx/tiles)
-A map tiling library for Go. Converts between WGS84 coordinates to Slippy Map Tiles and Quadkeys. Includes a TileIndex that can be used to aggregated data into parent tiles.
+A map tiling library for Go. Converts between WGS84 coordinates to Slippy Map Tiles and Quadkeys. Includes a TileIndex that can be used to aggregate data into parent tiles.
 
     go get github.com/buckhx/tiles
 
@@ -25,7 +25,7 @@ t2, _ := p.ToTile()
 ##### TileIndex
 The TileIndex allows for data to be indexed by tiles and aggregated up to their parents when requested
 ```
-idx := &TileIndex{}
+idx := NewTileIndex()
 esb := FromCoordinate(40.7484, -73.9857, 18)
 sol := FromCoordinate(40.6892, -74.0445, 18)
 bbn := FromCoordinate(51.5007, -0.1246, 18)
