@@ -77,3 +77,11 @@ func TileFromQuadKey(quadkey string) (tile Tile) {
 	}
 	return
 }
+
+// CoordinateToTile take float lat/lons and a zoom and return a tile
+func CoordinateToTile(lat, lon float64, zoom int) Tile {
+	coord := ClippedCoords(lat, lon)
+	pixel := coord.ToPixel(zoom)
+	tile, _ := pixel.ToTile()
+	return tile
+}

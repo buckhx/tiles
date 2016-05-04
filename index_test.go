@@ -28,9 +28,9 @@ func TestTileIndexSimple(t *testing.T) {
 
 func TestTileIndex(t *testing.T) {
 	idx := &TileIndex{}
-	esb, _ := CoordinateToTile(40.7484, -73.9857, 18)
-	sol, _ := CoordinateToTile(40.6892, -74.0445, 18)
-	bbn, _ := CoordinateToTile(51.5007, -0.1246, 18)
+	esb := CoordinateToTile(40.7484, -73.9857, 18)
+	sol := CoordinateToTile(40.6892, -74.0445, 18)
+	bbn := CoordinateToTile(51.5007, -0.1246, 18)
 	idx.Add(esb, "EmpireStateBuilding")
 	idx.Add(sol, "StatueOfLiberty")
 	idx.Add(bbn, "BigBen")
@@ -51,9 +51,9 @@ func TestTileIndex(t *testing.T) {
 
 func ExampleTileIndex() {
 	idx := &TileIndex{}
-	esb, _ := CoordinateToTile(40.7484, -73.9857, 18)
-	sol, _ := CoordinateToTile(40.6892, -74.0445, 18)
-	bbn, _ := CoordinateToTile(51.5007, -0.1246, 18)
+	esb := CoordinateToTile(40.7484, -73.9857, 18)
+	sol := CoordinateToTile(40.6892, -74.0445, 18)
+	bbn := CoordinateToTile(51.5007, -0.1246, 18)
 	idx.Add(esb, "EmpireStateBuilding")
 	idx.Add(sol, "StatueOfLiberty")
 	idx.Add(bbn, "BigBen")

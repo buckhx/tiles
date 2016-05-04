@@ -57,6 +57,6 @@ func TestTileFromQuadkey(t *testing.T) {
 func ExampleCoordinateToTile() {
 	esbLat := 40.7484
 	esbLon := -73.9857
-	tile, _ := CoordinateToTile(esbLat, esbLon, 18)
+	tile := CoordinateToTile(esbLat, esbLon, 18)
 	fmt.Println(tile)
 }
