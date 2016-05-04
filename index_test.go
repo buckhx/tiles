@@ -18,7 +18,7 @@ func TestTileIndexSimple(t *testing.T) {
 	}
 	idx := &TileIndex{}
 	for i, qk := range qks {
-		tile := TileFromQuadKey(qk)
+		tile := FromQuadKey(qk)
 		idx.Add(tile, i)
 	}
 	for tile := range idx.TileRange(1, 2) {
@@ -28,9 +28,9 @@ func TestTileIndexSimple(t *testing.T) {
 
 func TestTileIndex(t *testing.T) {
 	idx := &TileIndex{}
-	esb := CoordinateToTile(40.7484, -73.9857, 18)
-	sol := CoordinateToTile(40.6892, -74.0445, 18)
-	bbn := CoordinateToTile(51.5007, -0.1246, 18)
+	esb := FromCoordinate(40.7484, -73.9857, 18)
+	sol := FromCoordinate(40.6892, -74.0445, 18)
+	bbn := FromCoordinate(51.5007, -0.1246, 18)
 	idx.Add(esb, "EmpireStateBuilding")
 	idx.Add(sol, "StatueOfLiberty")
 	idx.Add(bbn, "BigBen")
@@ -51,9 +51,9 @@ func TestTileIndex(t *testing.T) {
 
 func ExampleTileIndex() {
 	idx := &TileIndex{}
-	esb := CoordinateToTile(40.7484, -73.9857, 18)
-	sol := CoordinateToTile(40.6892, -74.0445, 18)
-	bbn := CoordinateToTile(51.5007, -0.1246, 18)
+	esb := FromCoordinate(40.7484, -73.9857, 18)
+	sol := FromCoordinate(40.6892, -74.0445, 18)
+	bbn := FromCoordinate(51.5007, -0.1246, 18)
 	idx.Add(esb, "EmpireStateBuilding")
 	idx.Add(sol, "StatueOfLiberty")
 	idx.Add(bbn, "BigBen")

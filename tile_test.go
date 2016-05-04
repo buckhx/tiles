@@ -1,16 +1,18 @@
-package tiles
+package tiles_test
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/buckhx/tiles"
 )
 
 func TestTileToPixel(t *testing.T) {
 	tileTests := []struct {
-		tile  Tile
-		pixel Pixel
+		tile  tiles.Tile
+		pixel tiles.Pixel
 	}{
-		{Tile{26, 48, 7}, Pixel{6656, 12288, 7}},
+		{tiles.Tile{X: 26, Y: 48, Z: 7}, tiles.Pixel{X: 6656, Y: 12288, Z: 7}},
 		//{Tile{26, 48, 7}, Pixel{6827, 12405, 7}},
 	}
 	errf := "Tile%+v: %+v -> %+v"
@@ -24,10 +26,10 @@ func TestTileToPixel(t *testing.T) {
 
 func TestTileToQuadkey(t *testing.T) {
 	tileTests := []struct {
-		tile    Tile
+		tile    tiles.Tile
 		quadkey string
 	}{
-		{Tile{26, 48, 7}, "0231010"},
+		{tiles.Tile{X: 26, Y: 48, Z: 7}, "0231010"},
 	}
 	errf := "Tile%+v: %+v -> %+v"
 	for _, test := range tileTests {
@@ -41,22 +43,22 @@ func TestTileToQuadkey(t *testing.T) {
 func TestTileFromQuadkey(t *testing.T) {
 	tileTests := []struct {
 		quadkey string
-		tile    Tile
+		tile    tiles.Tile
 	}{
-		{"0231010", Tile{26, 48, 7}},
+		{"0231010", Tile{X: 26, Y: 48, Z: 7}},
 	}
 	errf := "QuadKey%+v: %+v -> %+v"
 	for _, test := range tileTests {
-		tile := TileFromQuadKey(test.quadkey)
+		tile := tiles.FromQuadKey(test.quadkey)
 		if tile != test.tile {
 			t.Errorf(errf, test.quadkey, test.tile, tile)
 		}
 	}
 }
 
-func ExampleCoordinateToTile() {
+func ExampleFromCoordinate() {
 	esbLat := 40.7484
 	esbLon := -73.9857
-	tile := CoordinateToTile(esbLat, esbLon, 18)
+	tile := tiles.FromCoordinate(esbLat, esbLon, 18)
 	fmt.Println(tile)
 }

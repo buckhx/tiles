@@ -32,13 +32,13 @@ func (idx *TileIndex) TileRange(zmin, zmax int) <-chan Tile {
 			n := idx.keys[i+1].qk
 			for z := zmin; z <= zmax && z <= len(q); z++ {
 				if !strings.HasPrefix(n, q[:z]) {
-					tiles <- TileFromQuadKey(q[:z])
+					tiles <- FromQuadKey(q[:z])
 				}
 			}
 		}
 		q := idx.keys[len(idx.keys)-1].qk
 		for z := zmin; z <= zmax && z <= len(q); z++ {
-			tiles <- TileFromQuadKey(q[:z])
+			tiles <- FromQuadKey(q[:z])
 		}
 	}()
 	return tiles

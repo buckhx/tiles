@@ -7,9 +7,9 @@ import (
 func TestPixelToCoords(t *testing.T) {
 	coordTests := []struct {
 		pixel  Pixel
-		coords Coords
+		coords Coordinate
 	}{
-		{Pixel{6827, 12405, 7}, Coords{40.002372, -104.996338}},
+		{Pixel{6827, 12405, 7}, Coordinate{40.002372, -104.996338}},
 	}
 	errf := "Pixel%+v: %+v -> %+v"
 	for _, test := range coordTests {

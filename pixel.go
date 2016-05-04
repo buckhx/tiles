@@ -18,7 +18,7 @@ func (p Pixel) floatY() float64 {
 }
 
 // ToCoords converts to WGS84 coordaintes
-func (p Pixel) ToCoords() Coords {
+func (p Pixel) ToCoords() Coordinate {
 	size := float64(mapDimensions(p.Z))
 	x := (clip(p.floatX(), 0, size-1) / size) - 0.5
 	y := 0.5 - (clip(p.floatY(), 0, size-1) / size)
@@ -48,7 +48,7 @@ type TilePixel struct {
 	Tile *Tile
 }
 
-func (p TilePixel) toCoords() Coords {
+func (p TilePixel) toCoords() Coordinate {
 	panic("TilePixel.ToCoords() Not Implemented")
 	//return Coords{}
 }

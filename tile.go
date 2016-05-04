@@ -49,9 +49,9 @@ func (t Tile) QuadKey() string {
 	return qk.String()
 }
 
-// TileFromQuadKey returns a tile that represents the given quadkey
+// FromQuadKey returns a tile that represents the given quadkey
 // Panics on invalid keys
-func TileFromQuadKey(quadkey string) (tile Tile) {
+func FromQuadKey(quadkey string) (tile Tile) {
 	tile.Z = len(quadkey)
 	for i := tile.Z; i > 0; i-- {
 		mask := 1 << uint(i-1)
@@ -78,10 +78,11 @@ func TileFromQuadKey(quadkey string) (tile Tile) {
 	return
 }
 
-// CoordinateToTile take float lat/lons and a zoom and return a tile
-func CoordinateToTile(lat, lon float64, zoom int) Tile {
-	coord := ClippedCoords(lat, lon)
-	pixel := coord.ToPixel(zoom)
-	tile, _ := pixel.ToTile()
-	return tile
+// FromCoordinate take float lat/lons and a zoom and return a tile
+// Clips the coordinates if they are outside of Min/MaxLat/Lon
+func FromCoordinate(lat, lon float64, zoom int) Tile {
+	c := ClippedCoords(lat, lon)
+	p := c.ToPixel(zoom)
+	t, _ := p.ToTile()
+	return t
 }

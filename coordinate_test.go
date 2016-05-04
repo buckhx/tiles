@@ -6,7 +6,7 @@ import (
 
 func TestToPixel(t *testing.T) {
 	pixelTests := []struct {
-		coords Coords
+		coords Coordinate
 		pixel  Pixel
 	}{
 		{ClippedCoords(40.0, -105.0), Pixel{6827, 12405, 7}},
