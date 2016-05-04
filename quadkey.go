@@ -6,8 +6,12 @@ import "strings"
 // It can also be used as a quadtree data structure
 type Quadkey string
 
-// HasParent returns a bool for is
+// HasParent returns a true if o is a parent of q.
+// If q == o, it return false
 func (q Quadkey) HasParent(o Quadkey) bool {
+	if q == o {
+		return false
+	}
 	return strings.HasPrefix(string(q), string(o))
 }
 
