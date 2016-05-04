@@ -6,7 +6,7 @@ import (
 )
 
 //TODO actually write a test
-func TestTileIndexSimple(t *testing.T) {
+func TestTileRange(t *testing.T) {
 	qks := []string{
 		"0000",
 		"0001",
@@ -21,8 +21,13 @@ func TestTileIndexSimple(t *testing.T) {
 		tile := FromQuadkeyString(qk)
 		idx.Add(tile, i)
 	}
+	c := 0
 	for tile := range idx.TileRange(1, 2) {
 		t.Logf("Tile %+v", tile.Quadkey())
+		c++
+	}
+	if c != 5 {
+		t.Error("TileRange should generate 5 tiles, got ", c)
 	}
 }
 
