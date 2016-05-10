@@ -58,7 +58,7 @@ func (t Tile) Quadkey() Quadkey {
 		}
 		qk[z-i] = d
 	}
-	return Quadkey(qk[:z])
+	return Quadkey(qk[:z]) // current bottleneck
 }
 
 // FromQuadkeyString returns a tile that represents the given quadkey string. Returns an error if quadkey string is invalid.
