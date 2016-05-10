@@ -17,6 +17,9 @@ const (
 // TileSize is the size in pixels of each tile. It can be tuned at the package level.
 var TileSize = 256
 
+// ZMax is the maximum Z coordinate for a tile as well as quadkey level
+const ZMax = 23
+
 // if val is outside of min-max range, clip it to min or max
 // panic if min > max
 func clip(val, min, max float64) float64 {

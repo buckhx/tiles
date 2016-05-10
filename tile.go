@@ -3,10 +3,7 @@
 // There is also a TileIndex which can be used to store data in a single place and aggregate when needed
 package tiles
 
-import (
-	"bytes"
-	"errors"
-)
+import "errors"
 
 // Tile is a simple struct for holding the XYZ coordinates for use in mapping
 type Tile struct {
@@ -33,8 +30,10 @@ func (t Tile) ToPixelWithOffset(offset Pixel) (pixel Pixel) {
 // Quadkey returns the string representation of a Bing Maps quadkey. See more https://msdn.microsoft.com/en-us/library/bb259689.aspx
 // Panics if the tile is invalid or if it can't write to the internal buffer
 func (t Tile) Quadkey() Quadkey {
-	var qk bytes.Buffer
-	for i := t.Z; i > 0; i-- {
+	//bytes.Buffer was bottleneck
+	z := t.Z
+	var qk [ZMax]byte
+	for i := z; i > 0; i-- {
 		q := 0
 		m := 1 << uint(i-1)
 		if (t.X & m) != 0 {
@@ -57,9 +56,9 @@ func (t Tile) Quadkey() Quadkey {
 		default:
 			panic("Invalid tile.Quadkey()")
 		}
-		_ = qk.WriteByte(d)
+		qk[z-i] = d
 	}
-	return Quadkey(qk.String())
+	return Quadkey(qk[:z])
 }
 
 // FromQuadkeyString returns a tile that represents the given quadkey string. Returns an error if quadkey string is invalid.
