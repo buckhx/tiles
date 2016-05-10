@@ -70,7 +70,6 @@ func FromQuadkeyString(qk string) (tile Tile, err error) {
 		q := qk[c]
 		switch q {
 		case '0':
-			break
 		case '1':
 			tile.X |= m
 		case '2':
