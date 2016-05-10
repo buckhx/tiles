@@ -45,6 +45,7 @@ fmt.Println("DENVER Tile: ", idx.Values(den)) //contains no values!
 Here are some microbenchmarks for converting a location at zoom level 18. 
 There's nothing really to compare them to, but should give a sense of op time on a 2.3 GHz core i7 MBP. 
 ```
+$ go test -bench=. -benchmem -benchtime 10s
 BenchmarkTileFromCoordinate-8	100000000	       165 ns/op	       0 B/op	       0 allocs/op
 BenchmarkTileFromQuadkey-8   	300000000	        43.7 ns/op	       0 B/op	       0 allocs/op
 BenchmarkQuadkeyFromTile-8   	200000000	        95.4 ns/op	      32 B/op	       1 allocs/op
