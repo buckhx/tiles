@@ -38,5 +38,7 @@ func (q Quadkey) Children() []Quadkey {
 
 // ToTile returns the Tile represented by this Quadkey
 func (q Quadkey) ToTile() Tile {
-	return FromQuadkeyString(string(q))
+	t, err := FromQuadkeyString(string(q))
+	check(err)
+	return t
 }

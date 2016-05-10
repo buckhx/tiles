@@ -56,6 +56,44 @@ func TestTileFromQuadkey(t *testing.T) {
 	}
 }
 
+var (
+	// These are globals to make sure that the compiler doesn't skip benchmarks
+	bT tiles.Tile
+	bQ tiles.Quadkey
+)
+
+func BenchmarkTileFromCoordinate(b *testing.B) {
+	var t tiles.Tile
+	z := 18
+	lat := 40.7484
+	lon := -73.9857
+	for i := 0; i < b.N; i++ {
+		t = tiles.FromCoordinate(lat, lon, z)
+	}
+	bT = t
+}
+
+func BenchmarkTileFromQuadkey(b *testing.B) {
+	var t tiles.Tile
+	qk := "032010110132023321"
+	for i := 0; i < b.N; i++ {
+		t, _ = tiles.FromQuadkeyString(qk)
+	}
+	bT = t
+
+}
+
+func BenchmarkQuadkeyFromCoordinate(b *testing.B) {
+	var q tiles.Quadkey
+	z := 18
+	lat := 40.7484
+	lon := -73.9857
+	for i := 0; i < b.N; i++ {
+		q = tiles.FromCoordinate(lat, lon, z).Quadkey()
+	}
+	bQ = q
+}
+
 func ExampleFromCoordinate() {
 	esbLat := 40.7484
 	esbLon := -73.9857

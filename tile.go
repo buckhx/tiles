@@ -5,7 +5,7 @@ package tiles
 
 import (
 	"bytes"
-	"strconv"
+	"errors"
 )
 
 // Tile is a simple struct for holding the XYZ coordinates for use in mapping
@@ -31,47 +31,58 @@ func (t Tile) ToPixelWithOffset(offset Pixel) (pixel Pixel) {
 }
 
 // Quadkey returns the string representation of a Bing Maps quadkey. See more https://msdn.microsoft.com/en-us/library/bb259689.aspx
-// Panics if it can't write to the internal buffer
+// Panics if the tile is invalid or if it can't write to the internal buffer
 func (t Tile) Quadkey() Quadkey {
 	var qk bytes.Buffer
 	for i := t.Z; i > 0; i-- {
-		quad := 0
-		mask := 1 << uint(i-1)
-		if (t.X & mask) != 0 {
-			quad++
+		q := 0
+		m := 1 << uint(i-1)
+		if (t.X & m) != 0 {
+			q++
 		}
-		if (t.Y & mask) != 0 {
-			quad += 2
+		if (t.Y & m) != 0 {
+			q += 2
 		}
-		digit := strconv.Itoa(quad)
-		_, _ = qk.WriteString(digit)
+		// strconv.Itoa(q) was the bottleneck
+		var d byte
+		switch q {
+		case 0:
+			d = '0'
+		case 1:
+			d = '1'
+		case 2:
+			d = '2'
+		case 3:
+			d = '3'
+		default:
+			panic("Invalid tile.Quadkey()")
+		}
+		_ = qk.WriteByte(d)
 	}
 	return Quadkey(qk.String())
 }
 
-// FromQuadkeyString returns a tile that represents the given quadkey string
-func FromQuadkeyString(qk string) (tile Tile) {
+// FromQuadkeyString returns a tile that represents the given quadkey string. Returns an error if quadkey string is invalid.
+func FromQuadkeyString(qk string) (tile Tile, err error) {
 	tile.Z = len(qk)
 	for i := tile.Z; i > 0; i-- {
 		mask := 1 << uint(i-1)
-		cur := len(qk) - i
-		quad, err := strconv.Atoi(string(qk[cur]))
-		check(err)
-		switch quad {
-		case 0:
+		c := len(qk) - i
+		q := qk[c]
+		switch q {
+		case '0':
 			break
-		case 1:
+		case '1':
 			tile.X |= mask
-			break
-		case 2:
+		case '2':
 			tile.Y |= mask
-			break
-		case 3:
+		case '3':
 			tile.X |= mask
 			tile.Y |= mask
-			break
 		default:
-			panic("Invalid Quadkey " + qk)
+			err = errors.New("Invalid Quadkey " + qk)
+			tile = Tile{} // zero tile
+			return
 		}
 	}
 	return

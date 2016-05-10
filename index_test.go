@@ -18,7 +18,7 @@ func TestTileRange(t *testing.T) {
 	}
 	idx := NewTileIndex()
 	for i, qk := range qks {
-		tile := FromQuadkeyString(qk)
+		tile, _ := FromQuadkeyString(qk)
 		idx.Add(tile, i)
 	}
 	c := 0
