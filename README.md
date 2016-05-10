@@ -3,6 +3,10 @@ A map tiling library written in pure Go with no external dependencies outside of
 
     go get github.com/buckhx/tiles
 
+or if you want to install the server
+
+    go install github.com/buckhx/tiles/server.go
+
 The godoc has good documentation and a couple examples, but here are a few as well
 
 ##### Coordinate/Tile conversion
@@ -38,6 +42,17 @@ fmt.Println("ESB Tile: ", idx.Values(esb))
 fmt.Println("SOL Tile: ", idx.Values(sol))
 fmt.Println("NYC Tile: ", idx.Values(nyc))    //contains esb & sol values!
 fmt.Println("DENVER Tile: ", idx.Values(den)) //contains no values!
+```
+
+##### Server
+A small server is also bundled that accepts the following requests
+
+```
+Server is a simple server that indexes data into tiles
+GET / - lists indexes
+POST /index "index={string}&lat={float}&lon={float}&value={string}"- Adds a value to the index at lat and lon
+GET /index?index={string}&x={int}&y={int}&z={int} - Aggregates data and returns an array for all data under tile at x/y/z
+GET /tile?lat={float}&lon={float}&z={int} - Returns the tile x/y/z as json, also accepts POST data w/ those params
 ```
 
 ##### Benchmarks

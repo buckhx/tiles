@@ -1,8 +1,10 @@
 package tiles
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
 )
 
 // Earth Parameters
@@ -70,4 +72,18 @@ func check(errs ...error) {
 			panic(err)
 		}
 	}
+}
+
+func writeJSON(w http.ResponseWriter, v interface{}, err error) {
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	o, err := json.Marshal(v)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/javascript")
+	_, _ = w.Write(o)
 }

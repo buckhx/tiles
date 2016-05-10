@@ -72,6 +72,9 @@ func (idx *KeysetIndex) Values(t Tile) (vals []interface{}) {
 		}
 		i++
 	}
+	if vals == nil {
+		vals = []interface{}{}
+	}
 	return
 }
 
