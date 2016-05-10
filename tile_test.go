@@ -83,13 +83,11 @@ func BenchmarkTileFromQuadkey(b *testing.B) {
 
 }
 
-func BenchmarkQuadkeyFromCoordinate(b *testing.B) {
+func BenchmarkQuadkeyFromTile(b *testing.B) {
 	var q tiles.Quadkey
-	z := 18
-	lat := 40.7484
-	lon := -73.9857
+	t := tiles.Tile{X: 77197, Y: 98526, Z: 18}
 	for i := 0; i < b.N; i++ {
-		q = tiles.FromCoordinate(lat, lon, z).Quadkey()
+		q = t.Quadkey()
 	}
 	bQ = q
 }

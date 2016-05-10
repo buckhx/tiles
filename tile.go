@@ -66,19 +66,19 @@ func (t Tile) Quadkey() Quadkey {
 func FromQuadkeyString(qk string) (tile Tile, err error) {
 	tile.Z = len(qk)
 	for i := tile.Z; i > 0; i-- {
-		mask := 1 << uint(i-1)
+		m := 1 << uint(i-1)
 		c := len(qk) - i
 		q := qk[c]
 		switch q {
 		case '0':
 			break
 		case '1':
-			tile.X |= mask
+			tile.X |= m
 		case '2':
-			tile.Y |= mask
+			tile.Y |= m
 		case '3':
-			tile.X |= mask
-			tile.Y |= mask
+			tile.X |= m
+			tile.Y |= m
 		default:
 			err = errors.New("Invalid Quadkey " + qk)
 			tile = Tile{} // zero tile
