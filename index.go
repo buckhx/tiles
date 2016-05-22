@@ -14,7 +14,7 @@ import (
 type TileIndex interface {
 	TileRange(zmin, zmax int) <-chan Tile
 	Values(t Tile) (vals []interface{})
-	Add(t Tile, val interface{})
+	Add(t Tile, val ...interface{})
 }
 
 // NewTileIndex returns the default TileIndex
@@ -30,7 +30,7 @@ type KeysetIndex struct {
 	// A trie would be more efficient, but
 	sorted bool
 	keys   []qkey
-	values []interface{}
+	values [][]interface{}
 	sync.RWMutex
 }
 
@@ -72,7 +72,7 @@ func (idx *KeysetIndex) Values(t Tile) (vals []interface{}) {
 	for i < len(idx.keys) {
 		n := idx.keys[i]
 		if n.qk == qk || n.qk.HasParent(qk) {
-			vals = append(vals, idx.values[n.v])
+			vals = append(vals, idx.values[n.v]...)
 		}
 		i++
 	}
@@ -80,7 +80,7 @@ func (idx *KeysetIndex) Values(t Tile) (vals []interface{}) {
 }
 
 // Add adds a value, but will not be indexed
-func (idx *KeysetIndex) Add(t Tile, val interface{}) {
+func (idx *KeysetIndex) Add(t Tile, val ...interface{}) {
 	idx.Lock()
 	defer idx.Unlock()
 	idx.values = append(idx.values, val)
@@ -114,19 +114,23 @@ func (q byQk) Len() int           { return len(q) }
 func (q byQk) Swap(i, j int)      { q[i], q[j] = q[j], q[i] }
 func (q byQk) Less(i, j int) bool { return q[i].qk < q[j].qk }
 
+//SuffixIndex is a TileIndex that uses a suffixarray to lookup values
 type SuffixIndex struct {
 	// \x00 joined string of keys for suffixarray
 	indexed string
 	index   *suffixarray.Index
-	tiles   map[Quadkey]Tile
+	tiles   map[Quadkey][]interface{}
 }
 
+//NewSuffixIndex returns a new SuffixIndex
 func NewSuffixIndex() *SuffixIndex {
 	return &SuffixIndex{
-		tiles: make(map[Quadkey]Tile),
+		tiles: make(map[Quadkey][]interface{}),
 	}
 }
 
+//TileRange returns all the tiles available in this index.
+//It currently DOES NOT return unique values
 func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
 	tiles := make(chan Tile, 1<<10)
 	go func() {
@@ -139,6 +143,7 @@ func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
 	return tiles
 }
 
+//Values returns all the values aggregated under the given tile
 func (idx *SuffixIndex) Values(t Tile) (vals []interface{}) {
 	idx.sort()
 	p := fmt.Sprintf("\x00%s[^\x00]*", t.Quadkey())
@@ -150,15 +155,17 @@ func (idx *SuffixIndex) Values(t Tile) (vals []interface{}) {
 	for _, k := range keys {
 		s, e := k[0]+1, k[1]
 		qk := Quadkey(idx.indexed[s:e])
-		vals = append(vals, idx.tiles[qk])
+		vals = append(vals, idx.tiles[qk]...)
 	}
 	return
 }
 
-func (idx *SuffixIndex) Add(t Tile, v interface{}) {
+//Add adds a tile and values associated with it
+func (idx *SuffixIndex) Add(t Tile, v ...interface{}) {
 	// Set index to nil b/c adding invalidates index
 	idx.index = nil
-	idx.tiles[t.Quadkey()] = t
+	qk := t.Quadkey()
+	idx.tiles[qk] = append(idx.tiles[qk], v...)
 }
 
 func (idx *SuffixIndex) sort() {

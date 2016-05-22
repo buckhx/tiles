@@ -33,30 +33,16 @@ func TestTileRange(t *testing.T) {
 }
 
 func TestTileIndex(t *testing.T) {
-	idx := NewTileIndex()
-	esb := FromCoordinate(40.7484, -73.9857, 18)
-	sol := FromCoordinate(40.6892, -74.0445, 18)
-	bbn := FromCoordinate(51.5007, -0.1246, 18)
-	idx.Add(esb, "EmpireStateBuilding")
-	idx.Add(sol, "StatueOfLiberty")
-	idx.Add(bbn, "BigBen")
-	nyc := Tile{X: 75, Y: 96, Z: 8}
-	den := Tile{X: 106, Y: 194, Z: 9}
-	//TODO table tests
-	switch {
-	case len(idx.Values(esb)) != 1:
-		t.Error("ESB: ", idx.Values(esb))
-	case len(idx.Values(sol)) != 1:
-		t.Error("SOL: ", idx.Values(sol))
-	case len(idx.Values(nyc)) != 2:
-		t.Error("NYC: ", idx.Values(nyc))
-	case len(idx.Values(den)) != 0:
-		t.Error("DEN: ", idx.Values(nyc))
-	}
+	idx := NewSuffixIndex()
+	testIndex(t, TileIndex(idx))
 }
 
 func TestSuffixIndex(t *testing.T) {
 	idx := NewSuffixIndex()
+	testIndex(t, TileIndex(idx))
+}
+
+func testIndex(t *testing.T, idx TileIndex) {
 	esb := FromCoordinate(40.7484, -73.9857, 18)
 	sol := FromCoordinate(40.6892, -74.0445, 18)
 	bbn := FromCoordinate(51.5007, -0.1246, 18)
@@ -86,7 +72,7 @@ func BenchmarkKeysetValues(b *testing.B) {
 		lat := mlat + rand.Float64()
 		lon := mlon - rand.Float64()
 		t := FromCoordinate(lat, lon, 18)
-		idx.Add(t, fmt.Sprintf("%s,%s", lat, lon))
+		idx.Add(t, fmt.Sprintf("%f,%f", lat, lon))
 	}
 	esb := Tile{X: 9649, Y: 12315, Z: 15}
 	b.ResetTimer()
@@ -102,7 +88,7 @@ func BenchmarkSuffixValues(b *testing.B) {
 		lat := mlat + rand.Float64()
 		lon := mlon - rand.Float64()
 		t := FromCoordinate(lat, lon, 18)
-		idx.Add(t, fmt.Sprintf("%s,%s", lat, lon))
+		idx.Add(t, fmt.Sprintf("%f,%f", lat, lon))
 	}
 	esb := Tile{X: 9649, Y: 12315, Z: 15}
 	b.ResetTimer()
