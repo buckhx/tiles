@@ -1,7 +1,5 @@
 package tiles
 
-import "strings"
-
 // Quadkey represents a Bing Maps quadkey
 // It can also be used as a quadtree data structure
 type Quadkey string
@@ -9,16 +7,17 @@ type Quadkey string
 // HasParent returns a true if o is a parent of q.
 // If q == o, it return false
 func (q Quadkey) HasParent(o Quadkey) bool {
-	if q == o {
+	z := len(o)
+	if len(q) <= z {
 		return false
 	}
-	return strings.HasPrefix(string(q), string(o))
+	return q[:z] == o
 }
 
-// Parent returns the parent of the object at the given level.
+// Parent returns the parent of the object at the given level z.
 // If level invalid (<0 || > q.Level()) it panics
-func (q Quadkey) Parent(level int) Quadkey {
-	return q[:level]
+func (q Quadkey) Parent(z int) Quadkey {
+	return q[:z]
 }
 
 // Level returns the depth of the quadkey in the tree structure

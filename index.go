@@ -1,7 +1,11 @@
 package tiles
 
 import (
+	"fmt"
+	"index/suffixarray"
+	"regexp"
 	"sort"
+	"strings"
 	"sync"
 )
 
@@ -109,3 +113,63 @@ type byQk []qkey
 func (q byQk) Len() int           { return len(q) }
 func (q byQk) Swap(i, j int)      { q[i], q[j] = q[j], q[i] }
 func (q byQk) Less(i, j int) bool { return q[i].qk < q[j].qk }
+
+type SuffixIndex struct {
+	// \x00 joined string of keys for suffixarray
+	indexed string
+	index   *suffixarray.Index
+	tiles   map[Quadkey]Tile
+}
+
+func NewSuffixIndex() *SuffixIndex {
+	return &SuffixIndex{
+		tiles: make(map[Quadkey]Tile),
+	}
+}
+
+func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
+	tiles := make(chan Tile, 1<<10)
+	go func() {
+		for k := range idx.tiles {
+			for z := zmin; z <= zmax; z++ {
+				tiles <- k[:z].ToTile()
+			}
+		}
+	}()
+	return tiles
+}
+
+func (idx *SuffixIndex) Values(t Tile) (vals []interface{}) {
+	idx.sort()
+	p := fmt.Sprintf("\x00%s[^\x00]*", t.Quadkey())
+	pre, err := regexp.Compile(p)
+	if err != nil {
+		panic(err)
+	}
+	keys := idx.index.FindAllIndex(pre, -1)
+	for _, k := range keys {
+		s, e := k[0]+1, k[1]
+		qk := Quadkey(idx.indexed[s:e])
+		vals = append(vals, idx.tiles[qk])
+	}
+	return
+}
+
+func (idx *SuffixIndex) Add(t Tile, v interface{}) {
+	// Set index to nil b/c adding invalidates index
+	idx.index = nil
+	idx.tiles[t.Quadkey()] = t
+}
+
+func (idx *SuffixIndex) sort() {
+	if idx.index == nil {
+		keys := make([]string, len(idx.tiles))
+		i := 0
+		for k := range idx.tiles {
+			keys[i] = string(k)
+			i++
+		}
+		idx.indexed = "\x00" + strings.Join(keys, "\x00")
+		idx.index = suffixarray.New([]byte(idx.indexed))
+	}
+}

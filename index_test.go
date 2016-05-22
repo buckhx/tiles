@@ -2,6 +2,7 @@ package tiles
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -51,6 +52,62 @@ func TestTileIndex(t *testing.T) {
 		t.Error("NYC: ", idx.Values(nyc))
 	case len(idx.Values(den)) != 0:
 		t.Error("DEN: ", idx.Values(nyc))
+	}
+}
+
+func TestSuffixIndex(t *testing.T) {
+	idx := NewSuffixIndex()
+	esb := FromCoordinate(40.7484, -73.9857, 18)
+	sol := FromCoordinate(40.6892, -74.0445, 18)
+	bbn := FromCoordinate(51.5007, -0.1246, 18)
+	idx.Add(esb, "EmpireStateBuilding")
+	idx.Add(sol, "StatueOfLiberty")
+	idx.Add(bbn, "BigBen")
+	nyc := Tile{X: 75, Y: 96, Z: 8}
+	den := Tile{X: 106, Y: 194, Z: 9}
+	switch {
+	case len(idx.Values(esb)) != 1:
+		t.Error("ESB: ", idx.Values(esb))
+	case len(idx.Values(sol)) != 1:
+		t.Error("SOL: ", idx.Values(sol))
+	case len(idx.Values(nyc)) != 2:
+		t.Error("NYC: ", idx.Values(nyc))
+	case len(idx.Values(den)) != 0:
+		t.Error("DEN: ", idx.Values(nyc))
+	}
+}
+
+var vQ []interface{}
+
+func BenchmarkKeysetValues(b *testing.B) {
+	idx := &KeysetIndex{}
+	mlat, mlon := 40.0, 73.0
+	for i := 0; i < 10000; i++ {
+		lat := mlat + rand.Float64()
+		lon := mlon - rand.Float64()
+		t := FromCoordinate(lat, lon, 18)
+		idx.Add(t, fmt.Sprintf("%s,%s", lat, lon))
+	}
+	esb := Tile{X: 9649, Y: 12315, Z: 15}
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		vQ = idx.Values(esb)
+	}
+}
+
+func BenchmarkSuffixValues(b *testing.B) {
+	idx := NewSuffixIndex() //NewTileIndex()
+	mlat, mlon := 40.0, 73.0
+	for i := 0; i < 10000; i++ {
+		lat := mlat + rand.Float64()
+		lon := mlon - rand.Float64()
+		t := FromCoordinate(lat, lon, 18)
+		idx.Add(t, fmt.Sprintf("%s,%s", lat, lon))
+	}
+	esb := Tile{X: 9649, Y: 12315, Z: 15}
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		vQ = idx.Values(esb)
 	}
 }
 
