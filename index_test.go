@@ -1,7 +1,9 @@
 package tiles
 
 import (
+	"bytes"
 	"fmt"
+	"index/suffixarray"
 	"math/rand"
 	"testing"
 )
@@ -33,13 +35,35 @@ func TestTileRange(t *testing.T) {
 }
 
 func TestTileIndex(t *testing.T) {
-	idx := NewSuffixIndex()
+	idx := NewTileIndex()
+	testIndex(t, idx)
+}
+
+func TestKeysetIndex(t *testing.T) {
+	idx := &KeysetIndex{}
 	testIndex(t, TileIndex(idx))
 }
 
 func TestSuffixIndex(t *testing.T) {
 	idx := NewSuffixIndex()
 	testIndex(t, TileIndex(idx))
+}
+
+func TestPrefixes(t *testing.T) {
+	keys := [][]byte{
+		[]byte("0123"),
+		[]byte("01234"),
+		[]byte("0231"),
+		[]byte("01412"),
+		[]byte("3023"),
+	}
+	d := []byte{0}
+	b := bytes.Join(keys, d)              //join w/ zeros
+	data := bytes.Join([][]byte{d, d}, b) //pad w/ zeros
+	idx := suffixarray.New(data)
+	if len(prefixes(idx, data, []byte("01"))) != 3 {
+		t.Error("prefixes() did not return correct keys")
+	}
 }
 
 func testIndex(t *testing.T, idx TileIndex) {
@@ -63,37 +87,37 @@ func testIndex(t *testing.T, idx TileIndex) {
 	}
 }
 
-var vQ []interface{}
+var bV []interface{}
 
 func BenchmarkKeysetValues(b *testing.B) {
 	idx := &KeysetIndex{}
-	mlat, mlon := 40.0, 73.0
-	for i := 0; i < 10000; i++ {
-		lat := mlat + rand.Float64()
-		lon := mlon - rand.Float64()
-		t := FromCoordinate(lat, lon, 18)
-		idx.Add(t, fmt.Sprintf("%f,%f", lat, lon))
-	}
+	hydrateIndex(idx)
+	idx.sort()
 	esb := Tile{X: 9649, Y: 12315, Z: 15}
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		vQ = idx.Values(esb)
+		bV = idx.Values(esb)
 	}
 }
 
 func BenchmarkSuffixValues(b *testing.B) {
-	idx := NewSuffixIndex() //NewTileIndex()
-	mlat, mlon := 40.0, 73.0
-	for i := 0; i < 10000; i++ {
-		lat := mlat + rand.Float64()
-		lon := mlon - rand.Float64()
-		t := FromCoordinate(lat, lon, 18)
-		idx.Add(t, fmt.Sprintf("%f,%f", lat, lon))
-	}
+	idx := NewSuffixIndex()
+	hydrateIndex(idx)
+	idx.sort()
 	esb := Tile{X: 9649, Y: 12315, Z: 15}
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		vQ = idx.Values(esb)
+		bV = idx.Values(esb)
+	}
+}
+
+func hydrateIndex(idx TileIndex) {
+	mlat, mlon := 40.7, -73.9
+	for i := 0; i < 10000; i++ {
+		lat := mlat + 0.1*rand.Float64()
+		lon := mlon - 0.1*rand.Float64()
+		t := FromCoordinate(lat, lon, 18)
+		idx.Add(t, fmt.Sprintf("%f,%f", lat, lon))
 	}
 }
 

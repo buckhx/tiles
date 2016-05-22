@@ -1,12 +1,14 @@
 package tiles
 
 import (
-	"fmt"
+	"bytes"
 	"index/suffixarray"
-	"regexp"
 	"sort"
-	"strings"
 	"sync"
+)
+
+const (
+	zero = byte('\x00')
 )
 
 // TileIndex stores indexes values by tile.
@@ -115,9 +117,10 @@ func (q byQk) Swap(i, j int)      { q[i], q[j] = q[j], q[i] }
 func (q byQk) Less(i, j int) bool { return q[i].qk < q[j].qk }
 
 //SuffixIndex is a TileIndex that uses a suffixarray to lookup values
+//It IS NOT currently safe for concurrent access.
 type SuffixIndex struct {
 	// \x00 joined string of keys for suffixarray
-	indexed string
+	indexed []byte
 	index   *suffixarray.Index
 	tiles   map[Quadkey][]interface{}
 }
@@ -146,15 +149,11 @@ func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
 //Values returns all the values aggregated under the given tile
 func (idx *SuffixIndex) Values(t Tile) (vals []interface{}) {
 	idx.sort()
-	p := fmt.Sprintf("\x00%s[^\x00]*", t.Quadkey())
-	pre, err := regexp.Compile(p)
-	if err != nil {
-		panic(err)
-	}
-	keys := idx.index.FindAllIndex(pre, -1)
+	qk := t.Quadkey()
+	keys := prefixes(idx.index, idx.indexed, []byte(qk))
 	for _, k := range keys {
-		s, e := k[0]+1, k[1]
-		qk := Quadkey(idx.indexed[s:e])
+		qk := Quadkey(k)
+		//fmt.Println(qk)
 		vals = append(vals, idx.tiles[qk]...)
 	}
 	return
@@ -170,13 +169,29 @@ func (idx *SuffixIndex) Add(t Tile, v ...interface{}) {
 
 func (idx *SuffixIndex) sort() {
 	if idx.index == nil {
-		keys := make([]string, len(idx.tiles))
+		keys := make([][]byte, len(idx.tiles))
 		i := 0
 		for k := range idx.tiles {
-			keys[i] = string(k)
+			keys[i] = []byte(k)
 			i++
 		}
-		idx.indexed = "\x00" + strings.Join(keys, "\x00")
-		idx.index = suffixarray.New([]byte(idx.indexed))
+		d := []byte{zero}
+		b := bytes.Join(keys, d)                    //join w/ zeros
+		idx.indexed = bytes.Join([][]byte{d, d}, b) //pad w/ zeros
+		idx.index = suffixarray.New(idx.indexed)
 	}
+}
+
+func prefixes(idx *suffixarray.Index, data, q []byte) (keys [][]byte) {
+	for _, i := range idx.Lookup(q, -1) {
+		if data[i-1] == zero { //if previous byte is zero, it's a prefix
+			var l int
+			for l = i; data[l] != zero; l++ {
+				// iterating until end of word
+			}
+			k := data[i:l]
+			keys = append(keys, k)
+		}
+	}
+	return
 }
