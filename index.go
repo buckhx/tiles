@@ -182,6 +182,7 @@ func (idx *SuffixIndex) sort() {
 	}
 }
 
+//prefixes assumes a \x00 delimited data with \x00 padding
 func prefixes(idx *suffixarray.Index, data, q []byte) (keys [][]byte) {
 	for _, i := range idx.Lookup(q, -1) {
 		if data[i-1] == zero { //if previous byte is zero, it's a prefix
