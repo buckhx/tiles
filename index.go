@@ -137,6 +137,7 @@ func NewSuffixIndex() *SuffixIndex {
 func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
 	tiles := make(chan Tile, 1<<10)
 	go func() {
+		defer close(tiles)
 		for k := range idx.tiles {
 			for z := zmin; z <= zmax; z++ {
 				tiles <- k[:z].ToTile()
