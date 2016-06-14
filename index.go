@@ -138,9 +138,14 @@ func (idx *SuffixIndex) TileRange(zmin, zmax int) <-chan Tile {
 	tiles := make(chan Tile, 1<<10)
 	go func() {
 		defer close(tiles)
+		seen := make(map[Tile]struct{}, len(idx.tiles)*(zmax-zmin+1))
 		for k := range idx.tiles {
 			for z := zmin; z <= zmax; z++ {
-				tiles <- k[:z].ToTile()
+				t := k[:z].ToTile()
+				if _, ok := seen[t]; !ok {
+					tiles <- t
+					seen[t] = struct{}{}
+				}
 			}
 		}
 	}()
