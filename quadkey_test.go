@@ -1,6 +1,7 @@
 package tiles
 
 import (
+	"math"
 	"testing"
 )
 
@@ -75,6 +76,39 @@ func TestQuadkeyChildren(t *testing.T) {
 		c := test.q.Children()
 		if !qkSliceEqual(c, test.c) {
 			t.Errorf(errf, test.q, c)
+		}
+	}
+}
+
+func TestQuadkeyChildrenAt(t *testing.T) {
+	tests := []struct {
+		q   Quadkey
+		z   int
+		c   []Quadkey
+		err bool
+	}{
+		{"0123", 4, []Quadkey{}, false},
+		{"0123", 5, Quadkey("0123").Children(), false},
+		{"0123", 6, []Quadkey{"012300", "012301", "012302", "012303", "012310", "012311", "012312", "012313", "012320", "012321", "012322", "012323", "012330", "012331", "012332", "012333"}, false},
+		{"0123", ZMax + 1, []Quadkey{}, true},
+		{"0123", 13, []Quadkey{}, true},
+	}
+	errf := "Quadkey(%q).ChildrenAt(%d) -> %+v, error(%+v)"
+	for _, test := range tests {
+		c, err := test.q.ChildrenAt(test.z)
+		if !qkSliceEqual(c, test.c) || (err != nil) != test.err {
+			t.Errorf(errf, test.q, test.z, c, err)
+		}
+	}
+}
+
+func TestQuadkeyChildrenAtNum(t *testing.T) {
+	q := Quadkey("0")
+	errf := "Quadkey(%q).ChildrenAt(%d) -> %+v, error(%+v)"
+
+	for i := len(q) + 1; i <= 9; i++ {
+		if c, err := q.ChildrenAt(i); len(c) != int(math.Pow(4, float64(i-len(q)))) || err != nil {
+			t.Errorf(errf, q, i, c, err)
 		}
 	}
 }
