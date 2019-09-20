@@ -63,7 +63,10 @@ func (q Quadkey) ChildrenAt(z int) ([]Quadkey, error) {
 
 	children := make([]Quadkey, 0, cap)
 	for _, c := range q.Children() {
-		add, _ := c.ChildrenAt(z)
+		add, err := c.ChildrenAt(z)
+		if err != nil {
+			return make([]Quadkey, 0), err
+		}
 		children = append(children, add...)
 	}
 
